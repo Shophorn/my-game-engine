@@ -79,9 +79,23 @@ namespace ng::maths
 		}
 
 		/*
+		:TODO: Assume unrolled at compile time, but learn more
+		*/
+		column_type operator * (row_type vec)
+		{
+			row_type result;
+			for (int i = 0; i < rows_count; i++)
+			{
+				result[i] = row_type::dot(rows[i], vec);
+			}
+			return result;
+		}
+
+
+		/*
 		:TOOD:
 			transpose
-			vector multiplication
+			X vector multiplication
 			value ptr
 			size conversions, type conversion
 
@@ -137,6 +151,14 @@ namespace ng::maths
 		debug::log("f22::identity = {}", f22::identity());
 		debug::log("f33::identity = {}", f33::identity());
 		debug::log("f44::identity = {}", f44::identity());
+
+		f22 I = f22::identity();
+		I[0][0] = 2;
+		I[0][1] = 1;
+		float2 a  {8, 1.71f};
+		float2 b = I * a;
+
+		debug::log("f22 muliply {}, {}", a, b);
 
 		return;
 	}
