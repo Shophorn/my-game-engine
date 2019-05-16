@@ -11,7 +11,7 @@
 
 namespace ng::maths
 {
-	template <typename ColumnVectorType, typename RowVectorType>
+	template <typename RowVectorType, typename ColumnVectorType>
 	struct MatrixBase
 	{
 		static_assert(
@@ -21,19 +21,18 @@ namespace ng::maths
 			>::value,
 			"'value_type' of both vector types must match");
 
-		using this_type = MatrixBase<ColumnVectorType, RowVectorType>;
-		using value_type = typename ColumnVectorType::value_type;
-		using column_type = ColumnVectorType;
-		using row_type = RowVectorType;
+		static constexpr int columns_count	= RowVectorType::dimension;
+		static constexpr int rows_count		= ColumnVectorType::dimension;
 
-		static constexpr int columns_count = RowVectorType::dimension;
-		static constexpr int rows_count = ColumnVectorType::dimension;
+		using this_type 		= MatrixBase<RowVectorType, ColumnVectorType>;
+		using value_type 		= typename ColumnVectorType::value_type;
+		using column_type 		= ColumnVectorType;
+		using row_type 			= RowVectorType;
+		using transpose_type 	= MatrixBase<ColumnVectorType, RowVectorType>; 
+		using row_array_type 	= std::array<row_type, rows_count>;
+
 
 		// Contents
-		using column_array_type = std::array<column_type, columns_count>;
-		column_array_type columns;
-
-		using row_array_type = std::array<row_type, rows_count>;
 		row_array_type rows;
 
 		// Vector types' default constructors initialize to zero
@@ -41,8 +40,8 @@ namespace ng::maths
 			: rows (row_array_type {} ) {}
 
 		// Move pre-created rows array
-		constexpr MatrixBase (row_array_type&& colums)
-			: rows (std::move(columns)) {}
+		constexpr MatrixBase (row_array_type&& rows)
+			: rows (std::move(rows)) {}
 
 		// Row vector constructor
 		// :TODO: I have no idea what typename = std::enable ... syntax means, find out
@@ -79,9 +78,9 @@ namespace ng::maths
 		}
 
 		/*
-		:TODO: Assume unrolled at compile time, but learn more
+		Multiply matching vector type from right
 		*/
-		column_type operator * (row_type vec)
+		column_type operator * (row_type vec) const noexcept
 		{
 			row_type result;
 			for (int i = 0; i < rows_count; i++)
@@ -90,11 +89,38 @@ namespace ng::maths
 			}
 			return result;
 		}
+		
+		/*
+		Each call builds new column type vector
+		*/
+		column_type columns (int index) const noexcept
+		{
+			column_type result;
+			for (int i = 0; i < columns_count; i++)
+			{
+				result[i] = rows[i][index];
+			} 
+			return result;
+		}
+
+		/*
+		Get transpose of this matrix as new object
+		*/
+		transpose_type transpose() const noexcept
+		{
+			transpose_type result;
+			for (int i = 0; i < columns_count; i++)
+			{			
+				result[i] = columns(i);
+			}
+			return result;
+		}
+
 
 
 		/*
 		:TOOD:
-			transpose
+			X transpose
 			X vector multiplication
 			value ptr
 			size conversions, type conversion
@@ -152,13 +178,13 @@ namespace ng::maths
 		debug::log("f33::identity = {}", f33::identity());
 		debug::log("f44::identity = {}", f44::identity());
 
-		f22 I = f22::identity();
-		I[0][0] = 2;
-		I[0][1] = 1;
-		float2 a  {8, 1.71f};
-		float2 b = I * a;
-
-		debug::log("f22 muliply {}, {}", a, b);
+		f33 A {
+			float3 (11, 12, 13),
+			float3 (21, 22, 23),
+			float3 (31, 32, 33)
+		};
+		debug::log("A {}", A);
+		debug::log("transpose of A {}", A.transpose());
 
 		return;
 	}
