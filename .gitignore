@@ -1,0 +1,12 @@
+# NG Engine project
+
+# Built binaries
+*.exe
+build/
+
+# Libraries should be included as link to source or similar
+lib/
+
+# Project files; project should be controlled with cmake
+*.sublime-project
+*.sublime-workspace

@@ -1,0 +1,20 @@
+NAMING CONVENTIONS
+
+namespaces camelCase
+	differentiate from static class functions
+
+	namespace::function
+	ClassName::function
+
+Classes (and structs) PascalCase
+
+functions camelCase
+variables camelCase
+
+
+OTHER CONVENTIONS
+
+folder paths ALWAYS contains trailing '/'
+also always use '/' instead of '\\', unless super special case, and then MAKE COMMENT 
+
+declare functions noexcept

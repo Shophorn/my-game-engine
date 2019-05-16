@@ -1,0 +1,12 @@
+namespace gui
+{
+	class GuiRenderer
+	{
+
+	};
+
+	class Button
+	{
+
+	};
+}

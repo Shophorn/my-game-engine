@@ -1,0 +1,6 @@
+Required Features / Operations
+
+	- Read files
+		to get assets into game
+	- Parse files into runtime data structures
+	- input
