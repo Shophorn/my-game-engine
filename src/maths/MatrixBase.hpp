@@ -33,76 +33,50 @@ namespace ng::maths
 		using column_array_type = std::array<column_type, columns_count>;
 		column_array_type columns;
 
+		using row_array_type = std::array<row_type, rows_count>;
+		row_array_type rows;
+
 		// Vector types' default constructors initialize to zero
 		constexpr MatrixBase ()
-			: columns(column_array_type{}) {}
+			: rows (row_array_type {} ) {}
 
-		// Insert pre-created columns array
-		constexpr MatrixBase (column_array_type&& columns)
-			: columns(std::forward<column_array_type> (columns)) {}
+		// Move pre-created rows array
+		constexpr MatrixBase (row_array_type&& colums)
+			: rows (std::move(columns)) {}
 
-		// Column vector constructor
+		// Row vector constructor
 		// :TODO: I have no idea what typename = std::enable ... syntax means, find out
 		// :TODO: need nice errors if should instantiate bad constructor
 		template <
 			typename ... TArgs, 
 			typename = std::enable_if_t<
-					tmpl::countIsEqual<columns_count, TArgs...>
-				&& 	tmpl::areAllTypeof<column_type, TArgs...>
+					tmpl::countIsEqual<rows_count, TArgs...>
+				&& 	tmpl::areAllTypeof<row_type, TArgs...>
 			>
 		>
 		constexpr MatrixBase (TArgs&& ... args)
-			: columns ( {std::forward<TArgs>(args) ... } ) {}
-
-		// /*
-
-		// */
-		// static this_type constructIdentity()
-		// {
-		// 	this_type m;
-		// 	for (int i = 0; i < columns_count && i < rows_count; i++)
-		// 	{
-		// 		m[i][i] = 1;
-		// 	}
-		// 	return m;
-		// };
+			: rows ( {std::forward<TArgs>(args) ... } ) {}
 
 		/*
 		Identity Matrix with 1s on diagonal and zeros elsewhere
 		To make this constexpr we have to explicitly define it for each concrete type.
 		
 		:TODO: this could probably be done with template recursion or similar, but 
-		indexing or pointers cannot be used in constexpr context
+		indexing or pointers cannot be used in constexpr context.
 		*/
 		static constexpr this_type identity() = delete;
 
-		// Return columns by indexing
-		column_type & operator [] (int index)
+		// Return row by indexing
+		row_type & operator [] (int index)
 		{
-			return columns[index];
+			return rows[index];
 		}
 		
-		// Return const columns by indexing
-		const column_type & operator [] (int index) const
+		// Return const rows by indexing
+		const row_type & operator [] (int index) const
 		{
-			return columns[index];
+			return rows[index];
 		}
-
-		// row_type getRow (int index)
-		// {
-		// 	return row_type(columns[0][index], columns[1][index]);
-		// }
-
-		// column_type operator * (row_type vec)
-		// {
-		// 	return column_type(
-		// 		row_type::dot(getRow(0), vec),	
-		// 		row_type::dot(getRow(1), vec)	
-		// 	);
-		// }
-
-		// row_§
-
 
 		/*
 		:TOOD:
