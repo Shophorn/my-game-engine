@@ -19,8 +19,9 @@ namespace ng
 		inline LogChannel rendering;
 	
 		// Easy log, smallest verbosity on main channel
+		// :TODO: make forwarding stuff
 		template <typename ... TArgs>
-		void log(std::string format, TArgs ... args)
+		void log(std::string format, const TArgs ... args)
 		{
 			main.log(0, format, args...);
 		}

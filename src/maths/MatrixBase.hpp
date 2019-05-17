@@ -2,7 +2,7 @@
 
 #include <type_traits>
 #include <array>
-#include <utility>
+// #include <utility>
 
 #include "vectors.hpp"
 #include "../debug.hpp"
@@ -14,6 +14,9 @@ namespace ng::maths
 	template <typename RowVectorType, typename ColumnVectorType>
 	struct MatrixBase
 	{
+		/*
+		Cannot create matrix of differen value types
+		*/
 		static_assert(
 			std::is_same<
 				typename ColumnVectorType::value_type,
@@ -21,31 +24,21 @@ namespace ng::maths
 			>::value,
 			"'value_type' of both vector types must match");
 
-		static constexpr int columns_count	= RowVectorType::dimension;
 		static constexpr int rows_count		= ColumnVectorType::dimension;
+		static constexpr int columns_count	= RowVectorType::dimension;
 
 		using this_type 		= MatrixBase<RowVectorType, ColumnVectorType>;
-		using value_type 		= typename ColumnVectorType::value_type;
-		using column_type 		= ColumnVectorType;
+		using value_type 		= typename RowVectorType::value_type;
 		using row_type 			= RowVectorType;
+		using column_type 		= ColumnVectorType;
 		using transpose_type 	= MatrixBase<ColumnVectorType, RowVectorType>; 
-		using row_array_type 	= std::array<row_type, rows_count>;
-
-
-		// Contents
-		row_array_type rows;
-
+		
 		// Vector types' default constructors initialize to zero
-		constexpr MatrixBase ()
-			: rows (row_array_type {} ) {}
-
-		// Move pre-created rows array
-		constexpr MatrixBase (row_array_type&& rows)
-			: rows (std::move(rows)) {}
+		constexpr MatrixBase () noexcept = default;
 
 		// Row vector constructor
 		// :TODO: I have no idea what typename = std::enable ... syntax means, find out
-		// :TODO: need nice errors if should instantiate bad constructor
+		// :TODO: need nice errors if should instantiate bad constructor, maybe create false_type constructor
 		template <
 			typename ... TArgs, 
 			typename = std::enable_if_t<
@@ -53,28 +46,28 @@ namespace ng::maths
 				&& 	tmpl::areAllTypeof<row_type, TArgs...>
 			>
 		>
-		constexpr MatrixBase (TArgs&& ... args)
-			: rows ( {std::forward<TArgs>(args) ... } ) {}
+		constexpr MatrixBase (TArgs&& ... args) noexcept
+			: mData ( {std::forward<TArgs>(args) ... } ) {}
 
 		/*
 		Identity Matrix with 1s on diagonal and zeros elsewhere
 		To make this constexpr we have to explicitly define it for each concrete type.
 		
 		:TODO: this could probably be done with template recursion or similar, but 
-		indexing or pointers cannot be used in constexpr context.
+		indexing or pointers cannot be used in constexpr context apparently.
 		*/
-		static constexpr this_type identity() = delete;
+		static constexpr this_type identity() noexcept = delete;
 
 		// Return row by indexing
 		row_type & operator [] (int index)
 		{
-			return rows[index];
+			return mData[index];
 		}
 		
 		// Return const rows by indexing
-		const row_type & operator [] (int index) const
+		const row_type & operator [] (int index) const noexcept
 		{
-			return rows[index];
+			return mData[index];
 		}
 
 		/*
@@ -85,48 +78,83 @@ namespace ng::maths
 			row_type result;
 			for (int i = 0; i < rows_count; i++)
 			{
-				result[i] = row_type::dot(rows[i], vec);
+				result[i] = row_type::dot(mData[i], vec);
 			}
 			return result;
 		}
-		
+
 		/*
-		Each call builds new column type vector
+		Get and set rows using mData directly
 		*/
-		column_type columns (int index) const noexcept
+		row_type row (int index) const noexcept
+		{
+			return mData [index];
+		}
+
+		void setRow(int rowIndex, row_type value) noexcept
+		{
+			mData[rowIndex] = value;
+		}
+
+		/*
+		Get and set columns.
+		Each call builds new column type vector, so beware.
+		Set loop is probably unrolled by compiler.
+		*/
+		column_type column (int index) const noexcept
 		{
 			column_type result;
-			for (int i = 0; i < columns_count; i++)
+			for (int i = 0; i < this_type::rows_count; i++)
 			{
-				result[i] = rows[i][index];
-			} 
+				result[i] = mData[i][index];
+			}
 			return result;
 		}
+
+		void setColumn(int columnIndex, column_type value) noexcept
+		{
+			for (int iRow = 0; iRow < rows_count; iRow++)
+			{
+				mData[iRow][columnIndex] = value[iRow];
+			}
+		}
+
 
 		/*
 		Get transpose of this matrix as new object
 		*/
 		transpose_type transpose() const noexcept
 		{
+
 			transpose_type result;
 			for (int i = 0; i < columns_count; i++)
 			{			
-				result[i] = columns(i);
+				result[i] = column(i);
 			}
 			return result;
 		}
 
-
-
+		/*
+		Pointer to first element in first row.
+		*/
+		value_type * valuePtr () noexcept
+		{
+			return &mData[0][0];	
+		}
 		/*
 		:TOOD:
-			X transpose
-			X vector multiplication
-			value ptr
+			determinant
+			inverse
+
 			size conversions, type conversion
 
 			perspective functions
 		*/
+
+	private:
+		// Contents
+		// Do not expose this becouse we may want to change type at some point
+		std::array<row_type, rows_count> mData {};
 	};
 
 	/*
@@ -134,7 +162,7 @@ namespace ng::maths
 	:TODO: find nicer way to define these...
 	*/
 	template<>
-	constexpr MatrixBase<float2, float2> MatrixBase<float2, float2>::identity()
+	constexpr MatrixBase<float2, float2> MatrixBase<float2, float2>::identity() noexcept
 	{ 
 		return MatrixBase<float2, float2>
 		{ 
@@ -143,7 +171,7 @@ namespace ng::maths
 		}; 
 	}
 	template<>
-	constexpr MatrixBase<float3, float3> MatrixBase<float3, float3>::identity()
+	constexpr MatrixBase<float3, float3> MatrixBase<float3, float3>::identity() noexcept
 	{ 
 		return MatrixBase<float3, float3>
 		{ 
@@ -154,7 +182,7 @@ namespace ng::maths
 	}
 
 	template<>
-	constexpr MatrixBase<float4, float4> MatrixBase<float4, float4>::identity()
+	constexpr MatrixBase<float4, float4> MatrixBase<float4, float4>::identity() noexcept
 	{
 		return MatrixBase<float4, float4>
 		{
@@ -178,13 +206,19 @@ namespace ng::maths
 		debug::log("f33::identity = {}", f33::identity());
 		debug::log("f44::identity = {}", f44::identity());
 
-		f33 A {
+		f33 M {
 			float3 (11, 12, 13),
 			float3 (21, 22, 23),
 			float3 (31, 32, 33)
 		};
-		debug::log("A {}", A);
-		debug::log("transpose of A {}", A.transpose());
+		debug::log("M {}", M);
+		debug::log("transpose of M {}", M.transpose());
+		debug::log("transpose of transpose of M {}", M.transpose().transpose());
+
+		M.setColumn(1, float3(0,0,0));
+		M.setRow(1, float3(1, 1, 1));
+
+		debug::log("M {}", M);
 
 		return;
 	}
