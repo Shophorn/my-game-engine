@@ -1,13 +1,11 @@
 #pragma once
 
-#include <type_traits>
+// #include <type_traits>
 #include <array>
-// #include <utility>
 
 #include "vectors.hpp"
 #include "../debug.hpp"
 #include "../tmpl.hpp"
-
 
 namespace ng::maths
 {
@@ -151,173 +149,81 @@ namespace ng::maths
 			perspective functions
 		*/
 
-
+		/*
+		Compute determinant of matrix.
+		Determinant describes relative change in volume of space transformed by matrix.
+		Negative determinant means space has been inverted.
+		*/
 		value_type determinant () const noexcept
 		{
 			static_assert(
 				rows_count == columns_count, 
 				"Determinant is only defined for square matrices");
 
-			if (rows_count == 3)
-				return det<3>(0, 1, 2);
-			return det <row_type::dimension>();
+			return impl_determinant<rows_count>();
 		}
 
-		template <int Level, typename ... Columns>
-		auto det(Columns ... columns) const
+		template<unsigned long long N>
+		auto SubArraySkipAtIndex (int skipIndex, std::array<int, N> columns) const
 		{
+			std::array<int, N - 1>result {};
+			for (int iSrc = 0, iDst = 0; iDst < N -1; iSrc++, iDst++)
+			{
+				if (skipIndex == iSrc)
+					iSrc++;
+
+				result [iDst] = columns [iSrc];
+			}
+			return result; 
+		}
+
+
+
+	private:
+		/*
+		Contents of matrix.
+		Do not expose this becouse we may want to change type at some point
+		*/
+		std::array<row_type, rows_count> mData {};
+
+
+		/*
+		Compute determinant with recursive templates.
+		Last level specialization merely returns value at that point, as should be.
+		First overload with no arguments is used to call with starting column indices (0, 1, ..., Level)
+		*/
+		template <int Level>
+		auto impl_determinant () const noexcept
+		{
+			return impl_determinant<Level>(tmpl::arraySequence<int, Level>());
+		}
+
+		template <int Level>
+		auto impl_determinant (std::array<int, Level> columns) const noexcept
+		{
+			constexpr int nextLevel = Level - 1;
 			int topRow = rows_count - Level;
-
-			columnGenerator<Level> gen (columns...);
-
+						
 			value_type value = 0;
 			int sign = 1;
 			for (int i = 0; i < Level; i++)
 			{
-				value +=
-					sign 
-					* mData[topRow][gen.columns[i]] 
-					* det<Level - 1>(gen.next(), gen.next());
-				sign *= -1;
-			}
-			return value;	
-		}
-
-		template <> auto det<2> () const { return det<2>(0, 1); }
- 		template <> auto det<2, int, int> (int a, int b) const
-		{
-			int topRow = rows_count - 2;
-
-			return
-				mData[topRow][a] * mData[rows_count - 1][b]
-				- mData[topRow][b] * mData[rows_count - 1][a];  
-		}	
-/*
-		template <> auto det<3> () const { return det<3> (0, 1, 2); }
-		template <> auto det<3> (int a, int b, int c) const
-		{
-			constexpr int level = 3;
-			int topRow = rows_count - level;
-
-			columnGenerator<level> gen (a, b, c);
-
-			value_type value = 0;
-			int sign = 1;
-			for (int i = 0; i < level; i++)
-			{
-				value +=
-					sign 
-					* mData[topRow][gen.columns[i]] 
-					* det<level - 1>(gen.next(), gen.next());
-				sign *= -1;
-			}
-			return value;
-		}
-*/
-		template<> auto det<4> () const { return det<4>(0, 1, 2, 3); }
-		template<> auto det<4> (int a, int b, int c, int d) const
-		{
-			constexpr int level = 4;
-			int topRow = rows_count - level;
-
-			columnGenerator<level> gen (a, b, c, d);
-
-			value_type value = 0;
-			int sign = 1;
-			for (int i = 0; i < level; i++)
-			{
 				value += 
-					sign 
-					* mData[topRow][gen.columns[i]]
-					* det<level - 1>(gen.next(), gen.next(), gen.next());
+					sign
+					* mData[topRow][columns[i]]
+					* impl_determinant<nextLevel>(SubArraySkipAtIndex(i, columns));
 				sign *= -1;
 			}
+
 			return value;
 		}
 
-		template <int Range>
-		struct columnGenerator
+		template<>
+		auto impl_determinant<1>(std::array<int, 1> columns) const noexcept
 		{
-			std::array<int, Range> columns;
-
-			template <typename ... Cols>
-			columnGenerator (Cols ... cols)
-				: columns (decltype(columns) { cols... } )
-				{
-					// for (int i = 0; i < Range; i++)
-						// debug::log("{}", columns[i]);
-				}
-
-			int next()
-			{
-				state++;
-				if ((state % Range) == (state / Range))
-					state++;
-
-				int index = state % Range;
-				int col = columns[index];
-				// debug::log("{}, {}", index, col);
-				return columns[state % Range];
-			}
-
-		private:
-			int state = 0;
-		};
-
-		struct skipDiagonalGenerator
-		{
-			int state = 0;
-			bool done = false;
-
-			int	range;
-			int count;
-
-			skipDiagonalGenerator (int range)
-				: range (range), count (range * range) {}
-
-			operator bool()
-			{
-				return !done;
-			}
-
-			int next()
-			{
-				state++;
-				
-				int col = state % range;
-				int row = state / range;
-
-				if (row == range && col == range)
-				{
-					done = true;
-				}
-
-				if (row == col)
-				{
-					state++;
-					col = state % range;
-					row = state / range;
-
-				}
-
-				return col;
-			}
-		};
-
-
-	private:
-		// Contents
-		// Do not expose this becouse we may want to change type at some point
-		std::array<row_type, rows_count> mData {};
+			return mData[rows_count -1][columns[0]];
+		}
 	};
-
-	/*
-	Identity definitions.
-	:TODO: find nicer way to define these...
-	*/
-
-
-
 }
 
 #include <sstream>

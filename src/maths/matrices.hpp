@@ -1,4 +1,5 @@
 #include "MatrixBase.hpp"
+#include "determinant.hpp"
 
 namespace ng
 {
@@ -7,8 +8,8 @@ namespace ng
 	Concrete type definitions.
 	Following members need to be explicitly defined:
 		identity
-		determinant
 	*/
+
 	using f22 = maths::MatrixBase<float2, float2>;
 
 	template<> constexpr f22 f22::identity() noexcept
@@ -51,15 +52,18 @@ namespace ng
 
 	void testMatrices()
 	{
-		debug::log("f22::identity = {}", f22::identity());
-		debug::log("f33::identity = {}", f33::identity());
-		debug::log("f44::identity = {}", f44::identity());
-
 		f33 M {
 			float3 (11, 12, 13),
 			float3 (21, 22, 23),
 			float3 (31, 32, 33)
 		};
+
+
+		// return;
+		debug::log("f22::identity = {}", f22::identity());
+		debug::log("f33::identity = {}", f33::identity());
+		debug::log("f44::identity = {}", f44::identity());
+
 		debug::log("M {}", M);
 		debug::log("transpose of M {}", M.transpose());
 		debug::log("transpose of transpose of M {}", M.transpose().transpose());
@@ -81,19 +85,13 @@ namespace ng
 
 		f44 M4 {
 			float4(2, 0, 0, 0),
-			float4(0, 1, 0, 0),
-			float4(0, 0, 1, 0),
-			float4(0, 0, 0, 1),
+			float4(0, 1, 0, 2.1),
+			float4(0, 0, 2, 0),
+			float4(-9, 1, 3, 0.2),
 		};
 		debug::log("M4 {}, determinant {}", M4, M4.determinant());
 		debug::log("f44 identity {}, determinant {}", f44::identity(), f44::identity().determinant());
 		debug::log("f44 identity {}, determinant {}", f44::identity(), f44::identity().determinant());
-
-		f44::columnGenerator<4> gen(0, 1, 2, 3);
-		for (int i = 0; i < 12; i ++)
-		{
-			debug::log("{}", gen.next());				
-		}
 
 		return;
 	}
