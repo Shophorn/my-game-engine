@@ -1,5 +1,4 @@
 #include "MatrixBase.hpp"
-#include "determinant.hpp"
 
 namespace ng
 {
@@ -50,6 +49,34 @@ namespace ng
 	using f34 = maths::MatrixBase<float3, float4>;
 
 
+	struct f5 : maths::VectorBase<float, 5, f5>
+	{
+		float x {};
+		float y {};
+		float z {};
+		float w {};
+		float n {};
+
+		constexpr f5 () = default;
+		constexpr f5 (float x, float y, float z, float w, float n)
+			: x(x), y(y), z(z), w(w), n(n) {}
+	};
+
+
+	using f55 = maths::MatrixBase<f5, f5>;
+
+	template <> constexpr f55 f55::identity() noexcept
+	{
+		return f55
+		{
+			f5 {1, 0, 0, 0, 0},
+			f5 {0, 1, 0, 0, 0},
+			f5 {0, 0, 1, 0, 0},
+			f5 {0, 0, 0, 1, 0},
+			f5 {0, 0, 0, 0, 1}
+		};
+	}
+
 	void testMatrices()
 	{
 		f33 M {
@@ -58,6 +85,20 @@ namespace ng
 			float3 (31, 32, 33)
 		};
 
+		f55 M5 = f55::identity();
+		debug::log("f55 det {}", M5.determinant());
+
+		M5 = f55 {
+
+			f5 {1, 31, 0, 0, 0},
+			f5 {0, 1, 0, 0, 0},
+			f5 {0, 0.5, 1, 0, 0},
+			f5 {0, 0.67, 0, 1, 0},
+			f5 {0, -1.4, 0, 0, 1}
+		};
+
+		debug::log("f55 det {}", M5.determinant());
+		return;
 
 		// return;
 		debug::log("f22::identity = {}", f22::identity());
