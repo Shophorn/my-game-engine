@@ -151,6 +151,160 @@ namespace ng::maths
 			perspective functions
 		*/
 
+
+		value_type determinant () const noexcept
+		{
+			static_assert(
+				rows_count == columns_count, 
+				"Determinant is only defined for square matrices");
+
+			if (rows_count == 3)
+				return det<3>(0, 1, 2);
+			return det <row_type::dimension>();
+		}
+
+		template <int Level, typename ... Columns>
+		auto det(Columns ... columns) const
+		{
+			int topRow = rows_count - Level;
+
+			columnGenerator<Level> gen (columns...);
+
+			value_type value = 0;
+			int sign = 1;
+			for (int i = 0; i < Level; i++)
+			{
+				value +=
+					sign 
+					* mData[topRow][gen.columns[i]] 
+					* det<Level - 1>(gen.next(), gen.next());
+				sign *= -1;
+			}
+			return value;	
+		}
+
+		template <> auto det<2> () const { return det<2>(0, 1); }
+ 		template <> auto det<2, int, int> (int a, int b) const
+		{
+			int topRow = rows_count - 2;
+
+			return
+				mData[topRow][a] * mData[rows_count - 1][b]
+				- mData[topRow][b] * mData[rows_count - 1][a];  
+		}	
+/*
+		template <> auto det<3> () const { return det<3> (0, 1, 2); }
+		template <> auto det<3> (int a, int b, int c) const
+		{
+			constexpr int level = 3;
+			int topRow = rows_count - level;
+
+			columnGenerator<level> gen (a, b, c);
+
+			value_type value = 0;
+			int sign = 1;
+			for (int i = 0; i < level; i++)
+			{
+				value +=
+					sign 
+					* mData[topRow][gen.columns[i]] 
+					* det<level - 1>(gen.next(), gen.next());
+				sign *= -1;
+			}
+			return value;
+		}
+*/
+		template<> auto det<4> () const { return det<4>(0, 1, 2, 3); }
+		template<> auto det<4> (int a, int b, int c, int d) const
+		{
+			constexpr int level = 4;
+			int topRow = rows_count - level;
+
+			columnGenerator<level> gen (a, b, c, d);
+
+			value_type value = 0;
+			int sign = 1;
+			for (int i = 0; i < level; i++)
+			{
+				value += 
+					sign 
+					* mData[topRow][gen.columns[i]]
+					* det<level - 1>(gen.next(), gen.next(), gen.next());
+				sign *= -1;
+			}
+			return value;
+		}
+
+		template <int Range>
+		struct columnGenerator
+		{
+			std::array<int, Range> columns;
+
+			template <typename ... Cols>
+			columnGenerator (Cols ... cols)
+				: columns (decltype(columns) { cols... } )
+				{
+					// for (int i = 0; i < Range; i++)
+						// debug::log("{}", columns[i]);
+				}
+
+			int next()
+			{
+				state++;
+				if ((state % Range) == (state / Range))
+					state++;
+
+				int index = state % Range;
+				int col = columns[index];
+				// debug::log("{}, {}", index, col);
+				return columns[state % Range];
+			}
+
+		private:
+			int state = 0;
+		};
+
+		struct skipDiagonalGenerator
+		{
+			int state = 0;
+			bool done = false;
+
+			int	range;
+			int count;
+
+			skipDiagonalGenerator (int range)
+				: range (range), count (range * range) {}
+
+			operator bool()
+			{
+				return !done;
+			}
+
+			int next()
+			{
+				state++;
+				
+				int col = state % range;
+				int row = state / range;
+
+				if (row == range && col == range)
+				{
+					done = true;
+				}
+
+				if (row == col)
+				{
+					state++;
+					col = state % range;
+					row = state / range;
+
+				}
+
+				return col;
+			}
+		};
+
+
 	private:
 		// Contents
 		// Do not expose this becouse we may want to change type at some point
@@ -161,67 +315,9 @@ namespace ng::maths
 	Identity definitions.
 	:TODO: find nicer way to define these...
 	*/
-	template<>
-	constexpr MatrixBase<float2, float2> MatrixBase<float2, float2>::identity() noexcept
-	{ 
-		return MatrixBase<float2, float2>
-		{ 
-			float2 {1, 0},
-			float2 {0, 1} 
-		}; 
-	}
-	template<>
-	constexpr MatrixBase<float3, float3> MatrixBase<float3, float3>::identity() noexcept
-	{ 
-		return MatrixBase<float3, float3>
-		{ 
-			float3 {1, 0, 0},
-			float3 {0, 1, 0},
-			float3 {0, 1, 0}
-		}; 
-	}
 
-	template<>
-	constexpr MatrixBase<float4, float4> MatrixBase<float4, float4>::identity() noexcept
-	{
-		return MatrixBase<float4, float4>
-		{
-			float4 {1, 0, 0, 0},
-			float4 {0, 1, 0, 0},
-			float4 {0, 0, 1, 0},
-			float4 {0, 0, 0, 1}
-		};
-	}
 
-	/*
-	Concrete type definitions
-	*/
-	using f22 = MatrixBase<float2, float2>;
-	using f33 = MatrixBase<float3, float3>;
-	using f44 = MatrixBase<float4, float4>;
 
-	void testMatrices()
-	{
-		debug::log("f22::identity = {}", f22::identity());
-		debug::log("f33::identity = {}", f33::identity());
-		debug::log("f44::identity = {}", f44::identity());
-
-		f33 M {
-			float3 (11, 12, 13),
-			float3 (21, 22, 23),
-			float3 (31, 32, 33)
-		};
-		debug::log("M {}", M);
-		debug::log("transpose of M {}", M.transpose());
-		debug::log("transpose of transpose of M {}", M.transpose().transpose());
-
-		M.setColumn(1, float3(0,0,0));
-		M.setRow(1, float3(1, 1, 1));
-
-		debug::log("M {}", M);
-
-		return;
-	}
 }
 
 #include <sstream>

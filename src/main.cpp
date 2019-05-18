@@ -71,14 +71,10 @@ GLint styleLocation;
 // ng is engine namespace
 using namespace ng;
 
-#include "maths/vectors2.hpp"
-#include "maths/functions.hpp"
-
 int main()
 {
 	// testVectors();
 	testMatrices();
-	debug::log("factorial of 2 = {}", maths::factorial<2>);
 
 	return 0;
 	

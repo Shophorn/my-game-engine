@@ -1,8 +1,9 @@
 target_sources(
 	${TARGET_NAME}
 PRIVATE
+	functions.hpp
+	matrices.hpp
 	MatrixBase.hpp
 	VectorBase.hpp
 	vectors.hpp
-	vectors2.hpp
 )
