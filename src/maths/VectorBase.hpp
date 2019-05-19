@@ -7,6 +7,11 @@ template <typename ValueType, int Dimension>
 struct VectorBase;
 
 /*
+TODO: we can implement this with std::array, but right now we only care about dimensions 2 - 4
+because they are implemented separately
+*/
+
+/*
 Debug formatting
 */	
 namespace fmt
