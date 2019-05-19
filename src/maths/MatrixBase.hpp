@@ -2,7 +2,6 @@
 
 #include <array>
 
-// #include "vectors.hpp"
 #include "../debug.hpp"
 #include "../tmpl.hpp"
 

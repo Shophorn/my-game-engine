@@ -16,6 +16,7 @@ struct VectorBase<ValueType, 2>
 	union { value_type y, g; };
 
 	// No initialize constructor
+	// TODO: Why do we need to define this, but not other default constructors
 	constexpr VectorBase() = default;
 
 	explicit constexpr VectorBase (value_type v)
