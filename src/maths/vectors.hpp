@@ -3,6 +3,7 @@
 #include "VectorBase.hpp"
 #include "VectorArithmeticOperators.hpp"
 #include "VectorOperations.hpp"
+#include "VectorCasts.hpp"
 #include "Vector2Base.hpp"
 #include "Vector3Base.hpp"
 #include "Vector4Base.hpp"
@@ -76,6 +77,12 @@ namespace ng
 		debug::log("int3 {}", A);
 		debug::log("magnitude {}, sqrMagnitude {}, float magnitude {}", magnitude(A), sqrMagnitude(A), magnitude(float3{9, 1, 4}));
 
+
+		float3 B (63.2325f, 12.314f, 3.14553f);
+		debug::log("cast float3 {} to int3 {}", B, type_cast<int>(B));
+
+		float2 C = dimension_cast<2>(B);
+		debug::log("cast float3 to float2: {}, and back {}", C, dimension_cast<3>(C)); 
 
 		// exqisite syntax
 		float gg = cross2d<float>({1.0f, 2.0f},{4.2f, 7.1f});
