@@ -1,5 +1,14 @@
 #pragma once
 
+#include "VectorBase.hpp"
+#include "../assertions.hpp"
+
+/*
+Base alias for 4d vector types
+*/
+template<typename T>
+using Vector4Base = VectorBase<T, 4>;
+
 template<typename ValueType>
 struct VectorBase<ValueType, 4>
 {
@@ -58,6 +67,3 @@ struct VectorBase<ValueType, 4>
 		return reinterpret_cast<const value_type*>(this);
 	}		
 };
-
-template<typename T>
-using Vector4Base = VectorBase<T, 4>;

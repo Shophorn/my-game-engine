@@ -1,8 +1,14 @@
 #pragma once
 
+#include "VectorBase.hpp"
+#include "../assertions.hpp"
+
+
+/*
+Base alias for 2d vector types
+*/
 template<typename T>
 using Vector2Base = VectorBase<T, 2>;
-
 
 template<typename ValueType>
 struct VectorBase<ValueType, 2>
@@ -51,10 +57,24 @@ struct VectorBase<ValueType, 2>
 			case 1: return y;
 		}
 	}
-
+	
+	/*
+	Only return const pointers, since i have no idea of memory layout, so we shouldn't write
+	Seems to work fine though
+	*/
 	const value_type * valuePtr() const
 	{
-		return reinterpret_cast<const value_type*>(this);
+		return &x;	
 	}
 };
 
+/*
+Two-dimensional cross product.
+*/
+template<typename ValueType>
+auto cross2d (
+	Vector2Base<ValueType> lhs,
+	Vector2Base<ValueType> rhs
+){
+	return lhs.x * rhs.y - lhs.y * rhs.x;
+}

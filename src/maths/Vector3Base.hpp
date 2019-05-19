@@ -1,5 +1,11 @@
 #pragma once
 
+#include "VectorBase.hpp"
+#include "../assertions.hpp"
+
+/*
+Base alias for 3d vector types.
+*/
 template<typename T>
 using Vector3Base = VectorBase<T, 3>;
 
@@ -59,3 +65,15 @@ struct VectorBase<ValueType, 3>
 	}		
 };
 
+template <typename ValueType>
+auto cross(
+	Vector3Base<ValueType> lhs,
+	Vector3Base<ValueType> rhs
+){
+	return Vector3Base<ValueType> 
+	{
+		lhs.y * rhs.z - lhs.z * rhs.y,
+		lhs.z * rhs.x - lhs.x * rhs.z,
+ 		lhs.x * rhs.y - lhs.y * rhs.x
+	};
+}
