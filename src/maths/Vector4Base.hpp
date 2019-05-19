@@ -24,16 +24,6 @@ namespace ng::maths
 		union { value_type z, b; };
 		union { value_type w, a; };
 
-		// No initialize constructor
-		constexpr VectorBase() = default;
-
-		explicit constexpr VectorBase (value_type v)
-			: x(v), y(v), z(v) {}
-
-		constexpr VectorBase(value_type x, value_type y, value_type z)
-			: x(x), y(y), z(z) {}
-
-
 		value_type & operator [] (int index)
 		{
 			NG_ASSERT (0 <= index && index < dimension);

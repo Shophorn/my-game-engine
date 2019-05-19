@@ -65,8 +65,8 @@ double deltaTime;
 void reset()
 {
 	scale = 1;
-	offset = double2 (0, 0);
-	constant = double2 (0, 0);
+	offset = double2 {0, 0};
+	constant = double2 {0, 0};
 }
 
 GLint styleLocation;
@@ -80,8 +80,7 @@ int main()
 {
 
 	// testVectors();
-	// testMatrices();
-	testVectors2();
+	testMatrices();
 
 	return 0;
 	

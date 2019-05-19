@@ -3,7 +3,6 @@
 #include "VectorBase.hpp"
 #include "../assertions.hpp"
 
-
 namespace ng::maths
 {
 	/*
@@ -23,16 +22,6 @@ namespace ng::maths
 		union { value_type x, r; };
 		union { value_type y, g; };
 		union { value_type z, b; };
-
-		// No initialize constructor
-		constexpr VectorBase() = default;
-
-		explicit constexpr VectorBase (value_type v)
-			: x(v), y(v), z(v) {}
-
-		constexpr VectorBase(value_type x, value_type y, value_type z)
-			: x(x), y(y), z(z) {}
-
 
 		value_type & operator [] (int index)
 		{

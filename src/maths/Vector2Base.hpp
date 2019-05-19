@@ -22,17 +22,6 @@ namespace ng::maths
 		union { value_type x, r; };
 		union { value_type y, g; };
 
-		// No initialize constructor
-		// TODO: Why do we need to define this, but not other default constructors
-		constexpr VectorBase() = default;
-
-		explicit constexpr VectorBase (value_type v)
-			: x(v), y(v) {}
-
-		constexpr VectorBase(value_type x, value_type y)
-			: x(x), y(y) {}
-
-
 		value_type & operator [] (int index)
 		{
 			NG_ASSERT (0 <= index && index < dimension);

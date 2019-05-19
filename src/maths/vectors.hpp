@@ -17,10 +17,28 @@ namespace ng
 	using float3 = maths::Vector3Base<float>;
 	using int3 = maths::Vector3Base<int>;
 
-	void testVectors2()
+	void testVectors()
 	{
 		using namespace maths;
 
+
+		debug::log("vector 2 is aggregate: {}, pod: {}",
+			std::is_aggregate_v<VectorBase<float, 2>>,
+			std::is_pod_v<VectorBase<float, 2>>);
+
+		debug::log("vector 3 is aggregate: {}, pod: {}",
+			std::is_aggregate_v<VectorBase<float, 3>>,
+			std::is_pod_v<VectorBase<float, 3>>);
+
+		debug::log("vector 4 is aggregate: {}, pod: {}",
+			std::is_aggregate_v<VectorBase<float, 4>>,
+			std::is_pod_v<VectorBase<float, 4>>);		
+
+
+		// float2 a {8};
+		// debug::log("float2 {}, y = {}", a, a.y);
+
+		// return;
 		float2 a{};
 		float2 b {22};
 		float2 c {11, 22};
@@ -78,7 +96,7 @@ namespace ng
 		debug::log("magnitude {}, sqrMagnitude {}, float magnitude {}", magnitude(A), sqrMagnitude(A), magnitude(float3{9, 1, 4}));
 
 
-		float3 B (63.2325f, 12.314f, 3.14553f);
+		float3 B { 63.2325f, 12.314f, 3.14553f };
 		debug::log("cast float3 {} to int3 {}", B, type_cast<int>(B));
 
 		float2 C = dimension_cast<2>(B);
@@ -87,5 +105,7 @@ namespace ng
 		// exqisite syntax
 		float gg = cross2d<float>({1.0f, 2.0f},{4.2f, 7.1f});
 		debug::log("gg:{}", gg);
+/*
+	*/
 	}
 }

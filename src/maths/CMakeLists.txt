@@ -3,15 +3,16 @@ target_sources(
 PRIVATE
 	functions.hpp
 	matrices.hpp
+	matricesOld.hpp
 	MatrixBase.hpp
+	MatrixBaseOld.hpp
 	Vector2Base.hpp
 	Vector3Base.hpp
 	Vector4Base.hpp
 	VectorArithmeticOperators.hpp
 	VectorBase.hpp
-	VectorBaseOld.hpp
+	VectorCasts.hpp
 	VectorFormatting.hpp
 	VectorOperations.hpp
 	vectors.hpp
-	vectorsOld.hpp
 )
