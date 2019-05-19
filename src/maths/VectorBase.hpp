@@ -1,4 +1,7 @@
 #pragma once
 
-template <typename ValueType, int Dimension>
-struct VectorBase;
+namespace ng::maths
+{
+	template <typename ValueType, int Dimension>
+	struct VectorBase;
+}

@@ -1,13 +1,14 @@
 #pragma once
 
 #include "../debug.hpp"
+#include "VectorBase.hpp"
 
 namespace fmt
 {
 	template <typename ValueType, int Dimension>
-	struct formatter<VectorBase<ValueType, Dimension>>
+	struct formatter<ng::maths::VectorBase<ValueType, Dimension>>
 	{
-		using vector_type = VectorBase<ValueType, Dimension>;
+		using vector_type = ng::maths::VectorBase<ValueType, Dimension>;
 
 		UNUSED_FMT_PARSE
 

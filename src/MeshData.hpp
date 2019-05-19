@@ -1,26 +1,26 @@
-/*
-NG Engine Project
-Head of programming Leo Tamminen
+// /*
+// NG Engine Project
+// Head of programming Leo Tamminen
 
-Classes for using meshes.
-*/
+// Classes for using meshes.
+// */
 
-#pragma once
+// #pragma once
 
-#include <vector>
+// #include <vector>
 
-#include "maths/vectors.hpp"
+// #include "maths/vectors.hpp"
 
-class MeshData
-{
-public:
-	std::vector<float3> positions;
-	std::vector<float2> textureCoordinates;
-	std::vector<float3> normals;
-	std::vector<float3> tangents; // mikk-space tangents
-};
+// class MeshData
+// {
+// public:
+// 	std::vector<float3> positions;
+// 	std::vector<float2> textureCoordinates;
+// 	std::vector<float3> normals;
+// 	std::vector<float3> tangents; // mikk-space tangents
+// };
 
-struct MeshInstance
-{
+// struct MeshInstance
+// {
 
-};
+// };

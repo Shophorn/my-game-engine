@@ -1,7 +1,6 @@
-// #include <iostream>
 #include <string>
 
-// #define GLEW_STATIC
+// GLEW_STATIC defined in cmake file
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
@@ -18,6 +17,10 @@
 
 #include <thread>
 #include <chrono>
+#include <vector>
+
+// ng is engine namespace
+using namespace ng;
 
 std::string gameTitle = "Boss Game";
 std::string vertexShaderPath = "shaders/screen_space.vert";
@@ -68,8 +71,7 @@ void reset()
 
 GLint styleLocation;
 
-// ng is engine namespace
-using namespace ng;
+
 
 template <typename T>
 constexpr bool testQuality = std::is_standard_layout_v<T> || std::is_pod_v<T>;

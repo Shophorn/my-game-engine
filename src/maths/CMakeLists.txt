@@ -6,9 +6,12 @@ PRIVATE
 	MatrixBase.hpp
 	Vector2Base.hpp
 	Vector3Base.hpp
+	Vector4Base.hpp
+	VectorArithmeticOperators.hpp
 	VectorBase.hpp
 	VectorBaseOld.hpp
-	VectorOperators.hpp
+	VectorFormatting.hpp
+	VectorOperations.hpp
 	vectors.hpp
 	vectorsOld.hpp
 )
