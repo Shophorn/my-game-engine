@@ -31,7 +31,7 @@ namespace ng
 		set lover than current verbosity level. Text will be formatted using fmt-library.
 		*/
 		template <typename ... TArgs>
-		void log(int verbosity, const std::string & text, TArgs ... args) noexcept
+		void log(int verbosity, const std::string & text, TArgs ... args)
 		{
 			auto message = fmt::format(text, args ...);
 			auto timeStr = timeStamp();
@@ -53,10 +53,29 @@ namespace ng
 		}
 
 		/*
+		Same as log, but with context
+		*/
+		template <typename ... TArgs>
+		void error(std::string file, int line, const std::string & text, TArgs ... args)
+		{
+			auto message = fmt::format(text, args ...);
+			auto output = fmt::format("file {}\nline {}:\n{}", file, line, message);
+			auto timeStr = timeStamp ();
+
+			/*
+			Write to file. Format string inclues newline, but flush afterwards 
+			so that we get most recent entry in case of crash.
+			*/
+			file << fmt::format(fileFormat, timeStr, output) << std::flush;			
+			fmt::print(terminalFormat, name, timeStr, output);
+
+		}
+
+		/*
 		Print directly to output file without creating any log happenings.
 		*/
 		template<typename ... TArgs>
-		void print(std::string text, TArgs ... args) noexcept
+		void print(std::string text, TArgs ... args)
 		{
 			file << fmt::format(text, args...) << std::endl;
 		}
@@ -79,7 +98,7 @@ namespace ng
 		/*
 		Get formatted timestamp as we want to use it here
 		*/
-		static std::string timeStamp() noexcept
+		static std::string timeStamp()
 		{
 			const static int secondsPrecision = 2;
 

@@ -1,6 +1,7 @@
 target_sources(
 	${TARGET_NAME}
 PRIVATE
+	assertions.hpp
 	debug.cpp
 	debug.hpp
 	file.cpp

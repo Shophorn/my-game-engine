@@ -4,6 +4,11 @@ PRIVATE
 	functions.hpp
 	matrices.hpp
 	MatrixBase.hpp
+	Vector2Base.hpp
+	Vector3Base.hpp
 	VectorBase.hpp
+	VectorBaseOld.hpp
+	VectorOperators.hpp
 	vectors.hpp
+	vectorsOld.hpp
 )
