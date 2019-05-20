@@ -78,7 +78,6 @@ constexpr bool testQuality = std::is_standard_layout_v<T> || std::is_pod_v<T>;
 
 int main()
 {
-
 	// testVectors();
 	testMatrices();
 
