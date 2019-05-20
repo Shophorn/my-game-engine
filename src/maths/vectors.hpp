@@ -31,6 +31,11 @@ namespace ng
 		);
 	}
 
+	constexpr float3 up {0, 1, 0};
+	constexpr int3 intUp = type_cast<int>(up);
+
+	constexpr float2 up2 = dimension_cast<2>(up);
+
 	void testVectors()
 	{
 		using namespace maths;
@@ -108,11 +113,17 @@ namespace ng
 		debug::log("gg:{}", gg);
 
 
-		float3 h { 6, 7, 8};
+		float3 h { 6, 7 };
 		debug::log("float3 {}", h);
 
-		h[1] = 0;
-		debug::log("float3 [1] = 0 --> {}", h);
+		h[2] = 8;
+		debug::log("float3 [2] = 0 --> {}", h);
 
+
+		// test constexpr things
+		debug::log("float3 up: {}, float2 up: {}, int3 up: {}", up, up2, intUp);
+
+		debug::log("shrank float2 from float3: {}", dimension_cast<2>(h));
+		debug::log("expanded float4 from float3: {}", dimension_cast<4>(h));
 	}
 }

@@ -14,10 +14,8 @@ namespace ng::maths
 	template<typename ValueType>
 	union VectorBase<ValueType, 3>
 	{
-		constexpr static int dimension = 3;
-		
 		using value_type = ValueType;
-		using this_type = VectorBase<value_type, dimension>;
+		constexpr static int dimension = 3;
 
 		struct
 		{
@@ -25,25 +23,24 @@ namespace ng::maths
 			union { value_type y, g; };
 			union { value_type z, b; };
 		};
-		value_type mData [dimension];
 
 		value_type & operator [] (int index)
 		{
 			NG_ASSERT (0 <= index && index < dimension);
 
-			return mData [index];
+			return (&x)[index];
 		}
 
 		value_type operator [] (int index) const
 		{
 			NG_ASSERT (0 <= index && index < dimension);
 
-			return mData [index];
+			return (&x)[index];
 		}
 		
 		const value_type * valuePtr() const
 		{
-			return mData;
+			return &x;
 		}	
 	};
 
