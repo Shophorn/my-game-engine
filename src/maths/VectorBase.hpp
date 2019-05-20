@@ -1,3 +1,4 @@
+
 #pragma once
 
 namespace ng::maths
@@ -8,5 +9,5 @@ namespace ng::maths
 	here, as specializations would override this.
 	*/
 	template <typename ValueType, int Dimension>
-	struct VectorBase;
+	union VectorBase;
 }

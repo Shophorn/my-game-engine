@@ -3,7 +3,7 @@
 namespace ng
 {
 	template<typename NewValueType, typename OldValueType, int Dimension>
-	auto type_cast(maths::VectorBase<OldValueType, Dimension> oldVec)
+	constexpr auto type_cast(maths::VectorBase<OldValueType, Dimension> oldVec)
 	{
 		if constexpr (std::is_same_v<NewValueType, OldValueType>)
 			return oldVec;
@@ -12,8 +12,8 @@ namespace ng
 
 		if constexpr (Dimension == 2)
 			return new_type {
-				static_cast<NewValueType>(oldVec.x),
-				static_cast<NewValueType>(oldVec.y)
+				static_cast<NewValueType>(oldVec[0]),
+				static_cast<NewValueType>(oldVec[1])
 			};
 
 		if constexpr (Dimension == 3)
@@ -33,12 +33,14 @@ namespace ng
 	}
 
 	template <int NewDimension, typename ValueType, int OldDimension>
-	auto dimension_cast(maths::VectorBase<ValueType, OldDimension> oldVec)
+	constexpr auto dimension_cast(maths::VectorBase<ValueType, OldDimension> oldVec)
 	{
 		if constexpr (NewDimension == OldDimension)
 			return oldVec;
 
 		maths::VectorBase<ValueType, NewDimension> newVec {0};
+		
+		// TODO instead loop to min length
 
 		if constexpr (NewDimension >= 1 && OldDimension >= 1) newVec.x = oldVec.x;
 		if constexpr (NewDimension >= 2 && OldDimension >= 2) newVec.y = oldVec.y;

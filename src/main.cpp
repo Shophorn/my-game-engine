@@ -79,11 +79,11 @@ constexpr bool testQuality = std::is_standard_layout_v<T> || std::is_pod_v<T>;
 int main()
 {
 
-	// testVectors();
-	testMatrices();
+	testVectors();
+	// testMatrices();
 
 	return 0;
-	
+	// 
 	// for timer
 	glfwInit();
 
@@ -125,7 +125,8 @@ int main()
 	glBufferData(
 		GL_ARRAY_BUFFER,
 		sizeof(gVertices),
-		gVertices[0].valuePtr(),
+		// gVertices[0].valuePtr(),
+		&gVertices[0][0],
 		GL_STATIC_DRAW
 	);
 

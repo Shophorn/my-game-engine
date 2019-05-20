@@ -12,49 +12,38 @@ namespace ng::maths
 	using Vector2Base = VectorBase<T, 2>;
 
 	template<typename ValueType>
-	struct VectorBase<ValueType, 2>
+	union VectorBase<ValueType, 2>
 	{
 		constexpr static int dimension = 2;
 		
 		using value_type = ValueType;
 		using this_type = VectorBase<value_type, dimension>;
 
-		union { value_type x, r; };
-		union { value_type y, g; };
+		// c++11 promises anonymous structs
+		struct
+		{
+			union { value_type x, r; };
+			union { value_type y, g; };
+		};
+		value_type mData [dimension];
 
 		value_type & operator [] (int index)
 		{
 			NG_ASSERT (0 <= index && index < dimension);
 
-			/*
-			Writing first entry as default supresses no return warning,
-			since we already asserted that index is valid.
-			*/
-			switch (index)
-			{
-				default: return x;
-				case 1: return y;
-			}
+			return mData [index];
 		}
 
 		value_type operator [] (int index) const
 		{
 			NG_ASSERT (0 <= index && index < dimension);
 
-			switch (index)
-			{
-				default: return x;
-				case 1: return y;
-			}
+			return mData [index];
 		}
 		
-		/*
-		Only return const pointers, since i have no idea of memory layout, so we shouldn't write
-		Seems to work fine though
-		*/
 		const value_type * valuePtr() const
 		{
-			return &x;	
+			return mData;
 		}
 	};
 

@@ -17,26 +17,27 @@ namespace ng
 	using float3 = maths::Vector3Base<float>;
 	using int3 = maths::Vector3Base<int>;
 
+	using float4 = maths::Vector4Base<float>;
+
+	template <typename T>
+	auto traitString ()
+	{
+		return fmt::format (
+			"size: {}, aggregate: {}, pod: {}, standard layout: {}",
+			sizeof(T),
+			std::is_aggregate_v<T>,
+			std::is_pod_v <T>,
+			std::is_standard_layout_v<T>
+		);
+	}
+
 	void testVectors()
 	{
 		using namespace maths;
 
-
-		debug::log("vector 2 is aggregate: {}, pod: {}",
-			std::is_aggregate_v<VectorBase<float, 2>>,
-			std::is_pod_v<VectorBase<float, 2>>);
-
-		debug::log("vector 3 is aggregate: {}, pod: {}",
-			std::is_aggregate_v<VectorBase<float, 3>>,
-			std::is_pod_v<VectorBase<float, 3>>);
-
-		debug::log("vector 4 is aggregate: {}, pod: {}",
-			std::is_aggregate_v<VectorBase<float, 4>>,
-			std::is_pod_v<VectorBase<float, 4>>);		
-
-
-		// float2 a {8};
-		// debug::log("float2 {}, y = {}", a, a.y);
+		debug::log("vector 2 f is {}", traitString<float2>());
+		debug::log("vector 3 f is {}", traitString<float3>());
+		debug::log("vector 4 f is {}", traitString<float4>());
 
 		// return;
 		float2 a{};
@@ -105,7 +106,13 @@ namespace ng
 		// exqisite syntax
 		float gg = cross2d<float>({1.0f, 2.0f},{4.2f, 7.1f});
 		debug::log("gg:{}", gg);
-/*
-	*/
+
+
+		float3 h { 6, 7, 8};
+		debug::log("float3 {}", h);
+
+		h[1] = 0;
+		debug::log("float3 [1] = 0 --> {}", h);
+
 	}
 }
