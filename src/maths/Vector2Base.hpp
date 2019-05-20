@@ -17,17 +17,18 @@ namespace ng::maths
 		using value_type = ValueType;
 		constexpr static int dimension = 2;
 
+		// data members
 		union { value_type x, r; };
 		union { value_type y, g; };
 
-		value_type & operator [] (int index)
+		constexpr value_type & operator [] (int index)
 		{
 			NG_ASSERT (0 <= index && index < dimension);
 
 			return (&x)[index];
 		}
 
-		value_type operator [] (int index) const
+		constexpr value_type operator [] (int index) const
 		{
 			NG_ASSERT (0 <= index && index < dimension);
 
