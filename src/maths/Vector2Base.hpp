@@ -12,18 +12,14 @@ namespace ng::maths
 	using Vector2Base = VectorBase<T, 2>;
 
 	template<typename ValueType>
-	union VectorBase<ValueType, 2>
+	struct VectorBase<ValueType, 2>
 	{
 		using value_type = ValueType;
 		constexpr static int dimension = 2;
 
-		// c++11 promises anonymous structs
-		struct
-		{
-			union { value_type x, r; };
-			union { value_type y, g; };
-		};
-		
+		union { value_type x, r; };
+		union { value_type y, g; };
+
 		value_type & operator [] (int index)
 		{
 			NG_ASSERT (0 <= index && index < dimension);

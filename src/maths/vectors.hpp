@@ -37,7 +37,7 @@ namespace ng
 	constexpr float2 up2 = dimension_cast<2>(up);
 
 	void testVectors()
-	{
+	{	
 		using namespace maths;
 
 		debug::log("vector 2 f is {}", traitString<float2>());
@@ -125,5 +125,6 @@ namespace ng
 
 		debug::log("shrank float2 from float3: {}", dimension_cast<2>(h));
 		debug::log("expanded float4 from float3: {}", dimension_cast<4>(h));
+
 	}
 }

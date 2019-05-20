@@ -12,19 +12,16 @@ namespace ng::maths
 	using Vector4Base = VectorBase<T, 4>;
 
 	template<typename ValueType>
-	union VectorBase<ValueType, 4>
+	struct VectorBase<ValueType, 4>
 	{
 		using value_type = ValueType;
 		constexpr static int dimension = 4;
 
-		struct
-		{
-			union { value_type x, r; };
-			union { value_type y, g; };
-			union { value_type z, b; };
-			union { value_type w, a; };
-		};
-		
+		union { value_type x, r; };
+		union { value_type y, g; };
+		union { value_type z, b; };
+		union { value_type w, a; };
+
 		value_type & operator [] (int index)
 		{
 			NG_ASSERT (0 <= index && index < dimension);

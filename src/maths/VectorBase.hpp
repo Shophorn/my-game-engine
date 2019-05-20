@@ -9,5 +9,5 @@ namespace ng::maths
 	here, as specializations would override this.
 	*/
 	template <typename ValueType, int Dimension>
-	union VectorBase;
+	struct VectorBase;
 }

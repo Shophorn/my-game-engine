@@ -12,17 +12,14 @@ namespace ng::maths
 	using Vector3Base = VectorBase<T, 3>;
 
 	template<typename ValueType>
-	union VectorBase<ValueType, 3>
+	struct VectorBase<ValueType, 3>
 	{
 		using value_type = ValueType;
 		constexpr static int dimension = 3;
 
-		struct
-		{
-			union { value_type x, r; };
-			union { value_type y, g; };
-			union { value_type z, b; };
-		};
+		union { value_type x, r; };
+		union { value_type y, g; };
+		union { value_type z, b; };
 
 		value_type & operator [] (int index)
 		{
