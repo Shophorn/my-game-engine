@@ -1,5 +1,6 @@
+
 /*
-Template MetaProgramming Library.
+Template Meta-Programming Library.
 
 Contains constexpr helpers for templates.
 */
@@ -8,6 +9,10 @@ Contains constexpr helpers for templates.
 
 namespace ng::tmpl // lol, temple
 {
+	template<int A, int B>
+	constexpr int min = A < B ? A : B;
+
+
 	/*
 	Is number of items in TArgs equal to Count.
 	*/

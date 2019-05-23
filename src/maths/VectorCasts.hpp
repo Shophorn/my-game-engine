@@ -55,9 +55,9 @@ namespace ng
 		if constexpr (NewDimension == OldDimension)
 			return oldVec;
 
-		constexpr int smallestDimension = NewDimension < OldDimension ? NewDimension : OldDimension;
-
 		using new_type = maths::VectorBase<ValueType, NewDimension>;
+
+		constexpr int smallestDimension = NewDimension < OldDimension ? NewDimension : OldDimension;
 
 		if constexpr (smallestDimension == 2)
 			return new_type {oldVec.x, oldVec.y};

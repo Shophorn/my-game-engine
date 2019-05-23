@@ -2,6 +2,7 @@
 
 // #include "vectors.hpp"
 #include "VectorBase.hpp"
+#include "VectorCasts.hpp"
 #include "../tmpl.hpp"
 
 namespace ng::maths
@@ -20,6 +21,9 @@ namespace ng::maths
 		using this_type			= MatrixBase<ValueType, RowCount, ColumnCount>;
 		using transpose_type	= MatrixBase<ValueType, ColumnCount, RowCount>;
 
+		/*
+		Return from function because 
+		*/
 		static this_type identity ()
 		{
 			static auto identityMatrix = constructIdentity();
@@ -28,6 +32,10 @@ namespace ng::maths
 
 		row_type mRows [rows_count];
 
+		/*
+		Access matrix' rows with operator.
+		This allows us to use syntax m[0][0] to set and get invidual items.
+		*/
 		constexpr row_type & operator [] (int index) noexcept
 		{
 			return mRows[index];
@@ -38,6 +46,10 @@ namespace ng::maths
 			return mRows[index];
 		}
 
+
+		/*
+		Access rows excplicitly.
+		*/
 		row_type & row (int index) noexcept
 		{
 			return mRows [index];
@@ -48,6 +60,14 @@ namespace ng::maths
 			return mRows [index];
 		}
 
+		/*
+		Access columns.
+		I'm using different style than with rows to make clearer distinction how these
+		procedures work.
+
+		Define each dimension separately in get to properly use vector types' aggregate constructors.
+		In set loop is fine, since no vector type constructor occurs.
+		*/
 		column_type getColumn (int index) const noexcept
 		{
 			if constexpr (rows_count == 2)
@@ -59,6 +79,7 @@ namespace ng::maths
 			if constexpr (rows_count == 4)
 				return { mRows[0][index], mRows[1][index], mRows[2][index], mRows[3][index] };
 
+			// TODO implement more with loops
 		}
 
 		void setColumn (int index, column_type value) noexcept
@@ -69,6 +90,9 @@ namespace ng::maths
 			}
 		}
 
+		/*
+		
+		*/
 		transpose_type transpose()
 		{
 			if constexpr (rows_count == 2)
@@ -113,6 +137,11 @@ namespace ng::maths
 		int identityCount = 0;
 	private:
 
+		/*
+		Construct identityMatrix.
+		This should only be used in constexpr context so we dont need to care about proper aggregate
+		constructor.
+		*/
 		static constexpr this_type constructIdentity()
 		{
 			constexpr int minDimension = rows_count < columns_count ? rows_count : columns_count;
@@ -128,6 +157,8 @@ namespace ng::maths
 		/*
 		Compute determinant with recursive templates.
 		First overload with no arguments is used to call with starting column indices (0, 1, ..., Level)
+
+
 		*/
 		template <int Level>
 		auto impl_determinant () const noexcept
@@ -141,6 +172,11 @@ namespace ng::maths
 			constexpr int nextLevel = Level - 1;
 			constexpr int topRow = rows_count - Level;
 						
+			// 3x3 matrix using modulus operators, we should use that too instead off
+			// SubArraySkipAtIndex() function
+			// for(i = 0; i < 3; i++)
+		 //    	determinant = determinant + (mat[0][i] * (mat[1][(i+1)%3] * mat[2][(i+2)%3] - mat[1][(i+2)%3] * mat[2][(i+1)%3]));
+
 			value_type value = 0;
 			int sign = 1;
 			for (int i = 0; i < Level; i++)
@@ -183,6 +219,80 @@ namespace ng::maths
 	};
 }
 
+namespace ng
+{
+	/*
+	Cast matrix to other base type
+	*/
+	template <typename NewValueType, typename OldValueType, int RowCount, int ColumnCount>
+	auto type_cast (ng::maths::MatrixBase<OldValueType, RowCount, ColumnCount> oldMatrix)
+	{
+
+		if constexpr (std::is_same_v<NewValueType, OldValueType>)
+			return oldMatrix;
+
+		using new_type = ng::maths::MatrixBase<NewValueType, RowCount, ColumnCount>;
+
+		// Cast row by row, vector casts are fine too
+		if constexpr(RowCount == 2)
+			return new_type {
+				type_cast<NewValueType>(oldMatrix.row(0)),
+				type_cast<NewValueType>(oldMatrix.row(1))
+			};	
+
+		if constexpr(RowCount == 3)
+			return new_type {
+				type_cast<NewValueType>(oldMatrix.row(0)),
+				type_cast<NewValueType>(oldMatrix.row(1)),
+				type_cast<NewValueType>(oldMatrix.row(2))
+			};	
+
+		if constexpr(RowCount == 4)
+			return new_type {
+				type_cast<NewValueType>(oldMatrix.row(0)),
+				type_cast<NewValueType>(oldMatrix.row(1)),
+				type_cast<NewValueType>(oldMatrix.row(2)),
+				type_cast<NewValueType>(oldMatrix.row(3))
+			};	
+	}
+
+
+	/*
+	Cast matrix to different new size
+	*/
+	template <int NewRowCount, int NewColumnCount, typename ValueType, int OldRowCount, int OldColumnCount>
+	auto size_cast (ng::maths::MatrixBase<ValueType, OldRowCount, OldColumnCount> oldMatrix)
+	{
+		if constexpr (NewRowCount == OldRowCount && NewColumnCount == OldColumnCount)
+			return oldMatrix;
+
+		using new_type = maths::MatrixBase<ValueType, NewRowCount, NewColumnCount>;
+
+		constexpr int smallestRowCount = tmpl::min<NewRowCount, OldRowCount>;
+		constexpr int smallestColumnCount = tmpl::min<NewColumnCount, OldColumnCount>;
+
+		if constexpr (smallestRowCount == 2)
+			return new_type { 
+				dimension_cast<smallestColumnCount>(oldMatrix.row(0)), 
+				dimension_cast<smallestColumnCount>(oldMatrix.row(1))
+			};
+
+		if constexpr (smallestRowCount == 3)
+			return new_type { 
+				dimension_cast<smallestColumnCount>(oldMatrix.row(0)), 
+				dimension_cast<smallestColumnCount>(oldMatrix.row(1)),
+				dimension_cast<smallestColumnCount>(oldMatrix.row(2))
+			};
+
+		if constexpr (smallestRowCount == 4)
+			return new_type { 
+				dimension_cast<smallestColumnCount>(oldMatrix.row(0)), 
+				dimension_cast<smallestColumnCount>(oldMatrix.row(1)),
+				dimension_cast<smallestColumnCount>(oldMatrix.row(2)),
+				dimension_cast<smallestColumnCount>(oldMatrix.row(3))
+			};
+	}
+}
 #include <sstream>
 namespace fmt
 {
@@ -208,13 +318,6 @@ namespace fmt
 		template <typename FormatContext>
 		auto format(const matrix_type & matrix, FormatContext & context)
 		{
-			// if constexpr (RowCount > 4 || ColumnCount > 4)
-			// 	return format_to (context.begin(), "matrix({}:{} x {})",
-			// 		typeid(ValueType).name(),
-			// 		RowCount,
-			// 		ColumnCount
-			// 	);
-
 			if constexpr (RowCount == 2)
 				return format_to (context.begin(), "({};{})", 
 					formatRow(matrix[0]),
@@ -236,17 +339,7 @@ namespace fmt
 					formatRow(matrix[3])
 				);
 
-
-
-			// std::stringstream ss;
-			// ss << "(";
-			// for (int iRow = 0; iRow < RowCount; iRow++)
-			// {
-			// 	for (int iCol = 0; iCol < ColumnCount; iCol++)
-			// 	{
-			// 		// ss << 
-			// 	}
-			// }
+			// TODO: implement more with loop
 		}
 	};
 }
