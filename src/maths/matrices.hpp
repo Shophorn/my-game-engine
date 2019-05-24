@@ -68,7 +68,8 @@ namespace ng
 
 		float3x3 c = coeffMultiply(float3x3::identity(), 2.0f);
 		debug::log("f33 identity * 2 = {}", c);
-		debug::log("size cast to f22: {}", size_cast<2,2> (c));
+		debug::log("size cast to f22: {}", size_cast<2,2>(c));
+		debug::log("size cast to f44: {}", size_cast<4,4>(c));
 
 
 		debug::log("f22 identity: {}", float2x2::identity());

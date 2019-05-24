@@ -127,10 +127,8 @@ namespace ng::maths
 
 			vector multiplication
 			matrix multiplication
-			scalar multiplication (not operator)
+			coeff scalar multiplication (not operator)
 			
-			type cast
-			size cast 
 			submatrix
 		*/
 
@@ -157,8 +155,6 @@ namespace ng::maths
 		/*
 		Compute determinant with recursive templates.
 		First overload with no arguments is used to call with starting column indices (0, 1, ..., Level)
-
-
 		*/
 		template <int Level>
 		auto impl_determinant () const noexcept
@@ -171,9 +167,9 @@ namespace ng::maths
 		{
 			constexpr int nextLevel = Level - 1;
 			constexpr int topRow = rows_count - Level;
-						
-			// 3x3 matrix using modulus operators, we should use that too instead off
-			// SubArraySkipAtIndex() function
+			
+			// TODO			
+			// 3x3 matrix using modulus operators, we should use that too instead of SubArraySkipAtIndex() function
 			// for(i = 0; i < 3; i++)
 		 //    	determinant = determinant + (mat[0][i] * (mat[1][(i+1)%3] * mat[2][(i+2)%3] - mat[1][(i+2)%3] * mat[2][(i+1)%3]));
 
@@ -225,7 +221,7 @@ namespace ng
 	Cast matrix to other base type
 	*/
 	template <typename NewValueType, typename OldValueType, int RowCount, int ColumnCount>
-	auto type_cast (ng::maths::MatrixBase<OldValueType, RowCount, ColumnCount> oldMatrix)
+	constexpr auto type_cast (ng::maths::MatrixBase<OldValueType, RowCount, ColumnCount> oldMatrix) noexcept
 	{
 
 		if constexpr (std::is_same_v<NewValueType, OldValueType>)
@@ -233,7 +229,7 @@ namespace ng
 
 		using new_type = ng::maths::MatrixBase<NewValueType, RowCount, ColumnCount>;
 
-		// Cast row by row, vector casts are fine too
+		// Cast row by row, vector casts with aggregate initialization
 		if constexpr(RowCount == 2)
 			return new_type {
 				type_cast<NewValueType>(oldMatrix.row(0)),
@@ -261,7 +257,7 @@ namespace ng
 	Cast matrix to different new size
 	*/
 	template <int NewRowCount, int NewColumnCount, typename ValueType, int OldRowCount, int OldColumnCount>
-	auto size_cast (ng::maths::MatrixBase<ValueType, OldRowCount, OldColumnCount> oldMatrix)
+	constexpr auto size_cast (ng::maths::MatrixBase<ValueType, OldRowCount, OldColumnCount> oldMatrix) noexcept
 	{
 		if constexpr (NewRowCount == OldRowCount && NewColumnCount == OldColumnCount)
 			return oldMatrix;
@@ -269,27 +265,26 @@ namespace ng
 		using new_type = maths::MatrixBase<ValueType, NewRowCount, NewColumnCount>;
 
 		constexpr int smallestRowCount = tmpl::min<NewRowCount, OldRowCount>;
-		constexpr int smallestColumnCount = tmpl::min<NewColumnCount, OldColumnCount>;
 
 		if constexpr (smallestRowCount == 2)
 			return new_type { 
-				dimension_cast<smallestColumnCount>(oldMatrix.row(0)), 
-				dimension_cast<smallestColumnCount>(oldMatrix.row(1))
+				dimension_cast<NewColumnCount>(oldMatrix.row(0)), 
+				dimension_cast<NewColumnCount>(oldMatrix.row(1))
 			};
 
 		if constexpr (smallestRowCount == 3)
 			return new_type { 
-				dimension_cast<smallestColumnCount>(oldMatrix.row(0)), 
-				dimension_cast<smallestColumnCount>(oldMatrix.row(1)),
-				dimension_cast<smallestColumnCount>(oldMatrix.row(2))
+				dimension_cast<NewColumnCount>(oldMatrix.row(0)), 
+				dimension_cast<NewColumnCount>(oldMatrix.row(1)),
+				dimension_cast<NewColumnCount>(oldMatrix.row(2))
 			};
 
 		if constexpr (smallestRowCount == 4)
 			return new_type { 
-				dimension_cast<smallestColumnCount>(oldMatrix.row(0)), 
-				dimension_cast<smallestColumnCount>(oldMatrix.row(1)),
-				dimension_cast<smallestColumnCount>(oldMatrix.row(2)),
-				dimension_cast<smallestColumnCount>(oldMatrix.row(3))
+				dimension_cast<NewColumnCount>(oldMatrix.row(0)), 
+				dimension_cast<NewColumnCount>(oldMatrix.row(1)),
+				dimension_cast<NewColumnCount>(oldMatrix.row(2)),
+				dimension_cast<NewColumnCount>(oldMatrix.row(3))
 			};
 	}
 }
@@ -302,18 +297,6 @@ namespace fmt
 		using matrix_type = ng::maths::MatrixBase<ValueType, RowCount, ColumnCount>;
 
 		UNUSED_FMT_PARSE
-
-		auto formatRow(typename matrix_type::row_type row)
-		{
-			if constexpr (ColumnCount == 2)
-				return fmt::format("{}, {}", row.x, row.y);
-
-			if constexpr (ColumnCount == 3)
-				return fmt::format("{}, {}, {}", row.x, row.y, row.z);
-
-			if constexpr (ColumnCount == 4)
-				return fmt::format("{}, {}, {}, {}", row.x, row.y, row.z, row.w);
-		}
 
 		template <typename FormatContext>
 		auto format(const matrix_type & matrix, FormatContext & context)
@@ -340,6 +323,20 @@ namespace fmt
 				);
 
 			// TODO: implement more with loop
+		}
+
+	private:
+
+		auto formatRow(typename matrix_type::row_type row)
+		{
+			if constexpr (ColumnCount == 2)
+				return fmt::format("{}, {}", row.x, row.y);
+
+			if constexpr (ColumnCount == 3)
+				return fmt::format("{}, {}, {}", row.x, row.y, row.z);
+
+			if constexpr (ColumnCount == 4)
+				return fmt::format("{}, {}, {}, {}", row.x, row.y, row.z, row.w);
 		}
 	};
 }
