@@ -7,10 +7,16 @@ Contains constexpr helpers for templates.
 
 #pragma once
 
-namespace ng::tmpl // lol, temple
+namespace ng::tmpl // lol, almost like ng::temple, maybe I should use it
 {
+
+	// Contstexpr min. In case of equal, return A.
 	template<int A, int B>
-	constexpr int min = A < B ? A : B;
+	constexpr int min = A <= B ? A : B;
+
+	// Contstexpr max. In case of equal, return A.
+	template<int A, int B>
+	constexpr int max = A >= B ? A : B;
 
 
 	/*

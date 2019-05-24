@@ -1,3 +1,19 @@
+/*
+NG Maths Library
+
+Template for all matrix sizes.
+Relies on VectorBase implementation.
+
+TODO:
+	inverse
+
+	vector multiplication
+	matrix multiplication
+	coeff scalar multiplication (not operator)
+	
+	submatrix
+*/
+
 #pragma once
 
 // #include "vectors.hpp"
@@ -22,7 +38,7 @@ namespace ng::maths
 		using transpose_type	= MatrixBase<ValueType, ColumnCount, RowCount>;
 
 		/*
-		Return from function because 
+		Identity matrix, 1s on diagonal, 0s elsewhere.
 		*/
 		static this_type identity ()
 		{
@@ -121,18 +137,6 @@ namespace ng::maths
 			return impl_determinant<rows_count>();
 		}
 
-		/*
-		TODO:
-			inverse
-
-			vector multiplication
-			matrix multiplication
-			coeff scalar multiplication (not operator)
-			
-			submatrix
-		*/
-
-		int identityCount = 0;
 	private:
 
 		/*
@@ -140,11 +144,11 @@ namespace ng::maths
 		This should only be used in constexpr context so we dont need to care about proper aggregate
 		constructor.
 		*/
-		static constexpr this_type constructIdentity()
+		static this_type constructIdentity()
 		{
-			constexpr int minDimension = rows_count < columns_count ? rows_count : columns_count;
+			constexpr int minDimension = tmpl::min<rows_count, columns_count>;
 			
-			this_type identity{0};
+			this_type identity {};
 			for (int i = 0; i < minDimension; i++)
 			{
 				identity[i][i] = 1;
