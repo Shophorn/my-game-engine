@@ -4,8 +4,10 @@ PRIVATE
 	functions.hpp
 	matrices.hpp
 	matricesOld.hpp
+	MatrixArithmeticOperators.hpp
 	MatrixBase.hpp
 	MatrixBaseOld.hpp
+	MatrixCasts.hpp
 	Vector2Base.hpp
 	Vector3Base.hpp
 	Vector4Base.hpp

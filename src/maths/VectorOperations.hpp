@@ -13,15 +13,15 @@ namespace ng::maths
 	){
 		// 2d
 		if constexpr (Dimension == 2)
-			return sqrt(a.x * b.x + a.y * b.y);
+			return a.x * b.x + a.y * b.y;
 
 		// 3d
 		if constexpr (Dimension == 3)
-			return sqrt(a.x * b.x + a.y * b.y + a.z * b.z);
+			return a.x * b.x + a.y * b.y + a.z * b.z;
 		
 		// 4d
 		if constexpr (Dimension == 4)
-			return sqrt(a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w);
+			return a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
 	}
 
 	template <typename ValueType, int Dimension>

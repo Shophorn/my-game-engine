@@ -2,12 +2,13 @@
 
 #include "../debug.hpp"
 #include "MatrixBase.hpp"
+#include "MatrixCasts.hpp"
+#include "MatrixArithmeticOperators.hpp"
 
 #include "vectors.hpp"
 
 namespace ng
 {
-
 	template <typename T>
 	auto traitStringM ()
 	{
@@ -71,9 +72,12 @@ namespace ng
 		debug::log("size cast to f22: {}", size_cast<2,2>(c));
 		debug::log("size cast to f44: {}", size_cast<4,4>(c));
 
-
 		debug::log("f22 identity: {}", float2x2::identity());
 		debug::log("f33 identity: {}", float3x3::identity());
 		debug::log("f44 identity: {}", float4x4::identity());
+
+		debug::log("multiply reference: {}", b);
+		debug::log("multiply with identity: {}", b * float2x2::identity());
+		debug::log("multiply with itself: {}", b * b);
 	}
 }
