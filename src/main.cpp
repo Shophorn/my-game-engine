@@ -27,29 +27,9 @@ std::string vertexShaderPath = "shaders/screen_space.vert";
 std::string fragmentShaderPath = "shaders/mandelbrot.frag";
 // std::string fragmentShaderPath = "shaders/default.frag";
 
-float2 gVertices [] =
-{
-	// Upper triangle
-	float2 {-1, -1},
-	float2 { 1, -1},
-	float2 {-1,  1},
-
-	// Lower triangle
-	float2 {-1,  1},
-	float2 { 1, -1},
-	float2 { 1,  1},
-};
-
-float2 gUvs [] =
-{
-	float2 {0, 0},
-	float2 {1, 0},
-	float2 {0, 1},
-
-	float2 {0, 1},
-	float2 {1, 0},
-	float2 {1, 1},
-};
+// test geometry, fullscreen quad
+float2 gVertices [] = {	-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1 };
+float2 gUvs [] = {	0, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 1 };
 
 double distortSpeed = 0.1;
 double moveSpeed = 0.7;
@@ -81,13 +61,13 @@ int main()
 	// testVectors();
 	testMatrices();
 
+
 	return 0;
-	// 
+
 	// for timer
 	glfwInit();
 
 	debug::initialize("c:/users/leo/desktop/logsDirectory/");
-	debug::log("this seems good enough");
 
 	std::vector<float2> mVertices 	{ gVertices, gVertices + 6 };
 	std::vector<float2> mUvs 		{ gUvs, gUvs + 6 };
@@ -123,9 +103,8 @@ int main()
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	glBufferData(
 		GL_ARRAY_BUFFER,
-		sizeof(gVertices),
-		// gVertices[0].valuePtr(),
-		&gVertices[0][0],
+		mVertices.size() * sizeof (mVertices[0]),
+		&mVertices[0][0],
 		GL_STATIC_DRAW
 	);
 
@@ -138,8 +117,8 @@ int main()
 	glBindBuffer(GL_ARRAY_BUFFER, tbo);
 	glBufferData(
 		GL_ARRAY_BUFFER,
-		sizeof(gUvs), 
-		gUvs[0].valuePtr(),
+		mUvs.size() * sizeof(mUvs[0]),
+		&mUvs[0][0],
 		GL_STATIC_DRAW
 	);
 
@@ -149,7 +128,7 @@ int main()
 
 	styleLocation = glGetUniformLocation(shaderId, "set");
 
-	auto controls  = [] (GLFWwindow * window,  int key, int scancode, int action, int mods)
+	auto controls = [] (GLFWwindow * window,  int key, int scancode, int action, int mods)
 	{
 		if (action == GLFW_PRESS || action == GLFW_REPEAT)
 		{

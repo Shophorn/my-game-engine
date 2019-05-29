@@ -5,10 +5,13 @@ Template for all matrix sizes.
 Relies on VectorBase implementation.
 
 TODO:
-	inverse
 
-	vector multiplication
-	matrix multiplication
+	nicify:
+		determinant
+		adjugate
+		inverse
+			(1/determinant) * adjugate
+
 	coeff scalar multiplication (not operator)
 	
 	submatrix
@@ -16,9 +19,9 @@ TODO:
 
 #pragma once
 
-// #include "vectors.hpp"
 #include "VectorBase.hpp"
 #include "VectorCasts.hpp"
+#include "MatrixDeterminant.hpp"
 #include "../tmpl.hpp"
 
 namespace ng::maths
@@ -26,7 +29,7 @@ namespace ng::maths
 	template <typename ValueType, int RowCount, int ColumnCount>
 	struct MatrixBase
 	{
-		static constexpr int count = RowCount * ColumnCount;
+		// static constexpr int count = RowCount * ColumnCount;
 		static constexpr int rows_count = RowCount;
 		static constexpr int columns_count = ColumnCount;
 		static constexpr bool is_square_matrix = (RowCount == ColumnCount);
@@ -107,10 +110,13 @@ namespace ng::maths
 		}
 
 		/*
-		
+		Transpose of matrix.
+		Currently only works correctly for square matrices of sizes 2 - 4
 		*/
 		transpose_type transpose()
 		{
+			static_assert(is_square_matrix, "Only square matrices 2 - 4 implemented now");
+
 			if constexpr (rows_count == 2)
 				return { getColumn(0), getColumn(1) };
 
@@ -120,7 +126,7 @@ namespace ng::maths
 			if constexpr (rows_count == 4)
 				return { getColumn(0), getColumn(1), getColumn(2), getColumn(3) };
 
-			// TODO: implement rest with loop
+			// TODO: implement more dimensions, as well as different shapes with loop
 		}	
 
 		/*
@@ -131,10 +137,57 @@ namespace ng::maths
 		value_type determinant () const noexcept
 		{
 			static_assert(
-				rows_count == columns_count, 
+				is_square_matrix, 
 				"Determinant is only defined for square matrices");
 
+			// This is not good function :(
+			// too confusing and seems like compile time recursive but it is not.
 			return impl_determinant<rows_count>();
+		}
+
+		this_type adjugate () const noexcept
+		{
+			static_assert (
+				is_square_matrix, 
+				"Adjugate if defined for square matrices only");
+
+			return impl_adjugate();
+		}
+
+		this_type inverse () const noexcept
+		{
+			static_assert (
+				is_square_matrix,
+				"Must be square matrix");
+
+			auto inv = adjugate();
+			inv.coeffMultiply(static_cast<value_type>(1.0) / determinant());
+			return inv;
+		}
+
+		void coeffMultiply(value_type value)
+		{
+			for (int r = 0; r < rows_count; r++)
+			{
+				for (int c = 0; c < columns_count; c++)
+				{
+					mRows[r][c] *= value;
+				}
+			}
+			// return *this;
+		}
+
+		/*
+		Trace is sum of elements on main diagonal.
+		*/
+		value_type trace () const noexcept
+		{
+			value_type value = 0;
+			for (int i = 0; i < rows_count; i++)
+			{
+				value += mRows[i][i];
+			}
+			return value;
 		}
 
 	private:
@@ -167,24 +220,20 @@ namespace ng::maths
 		}
 
 		template <int Level>
-		auto impl_determinant (std::array<int, Level> columns) const noexcept
+		auto impl_determinant (std::array<int, Level> cofactorColumns) const noexcept
 		{
 			constexpr int nextLevel = Level - 1;
 			constexpr int topRow = rows_count - Level;
 			
-			// TODO			
-			// 3x3 matrix using modulus operators, we should use that too instead of SubArraySkipAtIndex() function
-			// for(i = 0; i < 3; i++)
-		 //    	determinant = determinant + (mat[0][i] * (mat[1][(i+1)%3] * mat[2][(i+2)%3] - mat[1][(i+2)%3] * mat[2][(i+1)%3]));
-
 			value_type value = 0;
-			int sign = 1;
+			// BUG: wrong???
+			int sign = 1; // (-1)^(row + column) ???
 			for (int i = 0; i < Level; i++)
 			{
 				value += 
 					sign
-					* mRows[topRow][columns[i]]
-					* impl_determinant<nextLevel>(SubArraySkipAtIndex(i, columns));
+					* mRows[topRow][cofactorColumns[i]]
+					* impl_determinant<nextLevel>(GetCofactorColumns(i, cofactorColumns));
 				sign *= -1;
 			}
 
@@ -192,19 +241,17 @@ namespace ng::maths
 		}
 
 		template<>
-		auto impl_determinant<2>(std::array<int, 2> columns) const noexcept
+		auto impl_determinant<2>(std::array<int, 2> cofactorColumns) const noexcept
 		{
 			constexpr int topRow = rows_count - 2;
 
 			return
-				mRows[topRow][columns[0]] * mRows[topRow + 1][columns[1]]
-				- mRows[topRow][columns[1]] * mRows[topRow + 1][columns[0]];
+				mRows[topRow][cofactorColumns[0]] * mRows[topRow + 1][cofactorColumns[1]]
+				- mRows[topRow][cofactorColumns[1]] * mRows[topRow + 1][cofactorColumns[0]];
 		}
 
-
-
 		template<unsigned long long N>
-		auto SubArraySkipAtIndex (int skipIndex, std::array<int, N> columns) const
+		auto GetCofactorColumns (int skipIndex, std::array<int, N> columns) const
 		{
 			std::array<int, N - 1>result {};
 			for (int iSrc = 0, iDst = 0; iDst < N -1; iSrc++, iDst++)
@@ -215,6 +262,71 @@ namespace ng::maths
 				result [iDst] = columns [iSrc];
 			}
 			return result; 
+		}
+
+
+		///////////////////////////
+		/// Adjugate 			///
+		///////////////////////////
+
+		auto getCofactor(int row, int column) const noexcept
+		{
+			constexpr int cofactor_rows_count = rows_count - 1;
+			constexpr int cofactor_columns_count = columns_count -1;
+
+			using cofactor_type = MatrixBase<
+									value_type, 
+									cofactor_rows_count,
+									cofactor_columns_count
+								>;
+
+			cofactor_type c;
+
+
+			for (int iRow = 0, iRowCofactor = 0; iRowCofactor < cofactor_rows_count; iRow++, iRowCofactor++)
+			{
+				if (iRow == row)
+					iRow++;
+
+				for (int iCol = 0, iColCofactor = 0; iColCofactor < cofactor_columns_count; iCol++, iColCofactor++)
+				{
+					
+					if (iCol == column)
+						iCol++;
+
+					c[iRowCofactor][iColCofactor] = mRows[iRow][iCol];
+				}
+			}
+
+			return c;
+		}
+
+		auto impl_adjugate() const noexcept
+		{
+			if constexpr (rows_count == 2)
+			{
+				return this_type
+				{
+					mRows[1][1], -1 * mRows[0][1],
+					-1 * mRows[1][0], mRows[0][0] 
+				};
+			}
+			else
+			{
+				this_type cofactorMatrix;
+
+				for (int iRow = 0; iRow < rows_count; iRow++)
+				{
+					for (int iCol = 0; iCol < columns_count; iCol++)
+					{
+						int sign = pow(-1, iRow + iCol);
+
+						cofactorMatrix [iRow][iCol] = sign * getCofactor(iRow, iCol).determinant();
+					}
+				}
+
+				return cofactorMatrix.transpose();
+			}
 		}
 	};
 }

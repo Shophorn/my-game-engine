@@ -8,6 +8,7 @@ PRIVATE
 	MatrixBase.hpp
 	MatrixBaseOld.hpp
 	MatrixCasts.hpp
+	MatrixDeterminant.hpp
 	Vector2Base.hpp
 	Vector3Base.hpp
 	Vector4Base.hpp

@@ -7,6 +7,8 @@ Matrix cast operations
 
 #pragma once
 
+#include <type_traits>
+
 namespace ng
 {
 	/*

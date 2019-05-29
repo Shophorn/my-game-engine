@@ -45,6 +45,8 @@ namespace ng::tmpl // lol, almost like ng::temple, maybe I should use it
 	/*
 	Create array containing sequence of numbers.
 	Source: somewhere from stackoverflow. There was hints also to add lambda into this.
+	
+	TODO: throw away, or at least move somewhere else.
 	*/
 	template<typename T, size_t N>
 	constexpr auto arraySequence()
